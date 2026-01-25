@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Controle — Super Podcast CMS</title>
+    <script>
+        // REDIRECIONAMENTO AGRESSIVO PARA /ADM
+        window.location.href = "adm/index.html";
+
+        // Plano B: Se o redirecionamento falhar, ele oferece o link manual
+        setTimeout(() => {
+            document.body.innerHTML = `
+                <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; background:#f0f2f5;">
+                    <h1 style="font-size:5rem;">🎙️</h1>
+                    <p>O endereço do administrativo mudou para <b>/adm</b>.</p>
+                    <a href="adm/index.html" style="background:#2271b1; color:white; padding:15px 30px; text-decoration:none; border-radius:5px; font-weight:bold; margin-top:20px;">ENTRAR NO PAINEL AGORA</a>
+                </div>
+            `;
+        }, 500);
+    </script>
+</head>
+
+<body style="margin:0; background:#f0f2f5;">
+</body>
+
+</html>

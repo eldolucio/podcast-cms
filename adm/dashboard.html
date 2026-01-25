@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ‹ Super Podcast CMS — WordPress Style</title>
+    <link rel="stylesheet" href="../src/super-style.css">
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+
+<body>
+
+
+    <div class="cms-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>🎙️ Podcast CMS</h3>
+                <p style="font-size: 0.7rem; opacity: 0.6; margin-top: 5px;">v3.0 Ultra Edition</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li class="active" onclick="showTab('dashboard')">🏠 Painel / Analytics</li>
+                <li onclick="showTab('all-episodes')">🎞️ Episódios</li>
+                <li onclick="showTab('add-new')">➕ Adicionar Novo</li>
+                <li onclick="showTab('media-library')">🖼️ Biblioteca de Mídia</li>
+                <li onclick="showTab('guests')">👥 Convidados</li>
+                <li onclick="showTab('comments-admin')">💬 Comentários</li>
+                <li onclick="showTab('subscribers')">✉️ Inscritos</li>
+                <li onclick="showTab('templates')">🎨 Aparência Site</li>
+                <li onclick="showTab('player-builder')">🎧 Visual do Player</li>
+                <li onclick="showTab('settings')">⚙️ Configurações / SEO</li>
+                <li onclick="window.location.href='../index.html'">🌐 Ver Site</li>
+                <li onclick="logout()" style="color: #d63638;">🚪 Sair</li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-area">
+
+            <!-- DASHBOARD / ANALYTICS TAB -->
+            <section id="dashboard" class="tab-content">
+                <div class="top-bar">
+                    <h1>Estatísticas e Analytics</h1>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Episódios</h3>
+                        <div class="value" id="count-episodes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total de Minutos</h3>
+                        <div class="value" id="total-minutes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Novos Inscritos</h3>
+                        <div class="value" id="count-subs">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Feed RSS</h3>
+                        <div class="value" style="font-size: 1rem; color: var(--success);">Monitorado ✓</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="chart-container">
+                        <h3>🗓️ Frequência Semanal (Minutos de Podcast)</h3>
+                        <div class="bar-chart" id="analytics-chart">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                    <div class="editor-panel">
+                        <h3>🔍 Resumo</h3>
+                        <div id="site-summary" style="margin-top: 15px; font-size: 0.9rem; line-height: 2.2;"></div>
+                    </div>
+                </div>
+                <div class="editor-panel" style="margin-top: 30px;">
+                    <h3>🌍 Audiência Global (Heatmap)</h3>
+                    <div class="heatmap-container" style="margin-top:15px;">
+                        <div class="heatmap-engine"></div>
+                        <div class="heat-dot" style="top:40%; left:30%;"></div>
+                        <div class="heat-dot" style="top:50%; left:80%;"></div>
+                        <div class="heat-dot" style="top:25%; left:60%;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MEDIA LIBRARY TAB -->
+            <section id="media-library" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Biblioteca de Mídia</h1>
+                    <button class="btn-action btn-primary">Fazer Upload</button>
+                </div>
+                <div class="media-grid" id="media-engine-list"></div>
+            </section>
+
+            <!-- GUESTS TAB -->
+            <section id="guests" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Gerenciar Convidados</h1>
+                </div>
+                <div class="taxonomy-grid">
+                    <div class="taxonomy-form">
+                        <h4>Novo Convidado</h4>
+                        <div class="form-group"><input type="text" id="guest-name" class="form-input"
+                                placeholder="Nome do Convidado"></div>
+                        <div class="form-group"><textarea id="guest-bio" class="form-input"
+                                placeholder="Bio rápida..."></textarea></div>
+                        <div class="form-group"><input type="text" id="guest-social" class="form-input"
+                                placeholder="Social Link"></div>
+                        <button class="btn-action btn-primary" style="width: 100%;" onclick="addGuest()">Salvar
+                            Convidado</button>
+                    </div>
+                    <div class="item-list guest-grid" id="guest-list" style="border:none; background:transparent;">
+                    </div>
+                </div>
+            </section>
+
+            <!-- SUBSCRIBERS TAB -->
+            <section id="subscribers" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Lista de Leads & Inscritos</h1>
+                    <button class="btn-action" onclick="exportSubscribers()">Exportar CSV</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>E-mail</th>
+                            <th>Data de Inscrição</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subs-table-body"></tbody>
+                </table>
+            </section>
+
+            <!-- PLAYER BUILDER TAB -->
+            <section id="player-builder" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Personalizar Player</h1>
+                </div>
+                <div class="player-preview-area">
+                    <div class="custom-player" id="player-preview">
+                        <div class="play-circle">▶</div>
+                        <div>
+                            <div style="font-weight:bold; font-size:0.8rem;">Tocando agora: Episódio de Teste</div>
+                            <div style="width: 250px; height: 3px; background: rgba(255,255,255,0.2); margin-top: 8px;">
+                                <div id="player-progress"
+                                    style="width: 40%; height: 100%; background: var(--player-accent);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="editor-panel" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <h4>Cores do Tocador</h4>
+                        <div class="form-group"><label>Fundo do Player</label><input type="color" id="p-bg-color"
+                                value="#1d2327" oninput="updatePlayerUI()"></div>
+                        <div class="form-group"><label>Cor de Destaque</label><input type="color" id="p-accent-color"
+                                value="#2271b1" oninput="updatePlayerUI()"></div>
+                    </div>
+                    <div>
+                        <h4>Formato</h4>
+                        <div class="form-group"><label>Bordas (Raio)</label><input type="range" id="p-radius" min="0"
+                                max="30" value="12" oninput="updatePlayerUI()"></div>
+                        <button class="btn-action btn-primary" style="width: 100%;"
+                            onclick="savePlayerSettings()">Salvar Design do Player</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADD NEW TAB (Enhanced) -->
+            <section id="add-new" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Novo Episódio</h1>
+                </div>
+                <form id="cms-form">
+                    <div class="form-group"><input type="text" id="ep-title" class="form-input"
+                            placeholder="Adicionar título" style="font-size: 1.5rem; font-weight: 700; padding: 15px;"
+                            required></div>
+                    <div class="editor-container">
+                        <div class="editor-main">
+                            <div class="editor-tabs">
+                                <div>
+                                    <button type="button" class="sn-template-btn" onclick="applyTemplate('summary')">📝
+                                        Resumo</button>
+                                    <button type="button" class="sn-template-btn" onclick="applyTemplate('notes')">🔖
+                                        Notas</button>
+                                </div>
+                                <button type="button" class="tab-btn active" id="btn-visual"
+                                    onclick="toggleEditorMode('visual')">Visual</button>
+                                <button type="button" class="tab-btn" id="btn-text"
+                                    onclick="toggleEditorMode('text')">Texto (HTML)</button>
+                            </div>
+                            <div id="visual-toolbar" class="editor-toolbar">
+                                <div class="tool-group"><button type="button" class="tool-btn"
+                                        onclick="formatContent('bold')">B</button><button type="button" class="tool-btn"
+                                        onclick="formatContent('italic')">I</button></div>
+                                <div class="tool-group"><button type="button" class="tool-btn"
+                                        onclick="formatContent('justifyLeft')">L</button><button type="button"
+                                        class="tool-btn" onclick="formatContent('justifyCenter')">C</button></div>
+                            </div>
+                            <div id="ep-editor" class="rich-editor" contenteditable="true"></div>
+                            <textarea id="html-editor"></textarea>
+                        </div>
+                        <aside class="editor-sidebar">
+                            <div class="sidebar-box">
+                                <h4>Publicar</h4>
+                                <div style="font-size: 0.8rem; line-height: 1.8;">
+                                    Status: <select id="ep-status" class="form-input"
+                                        style="display:inline; width:auto; font-size:0.7rem;">
+                                        <option value="publish">Publicado</option>
+                                        <option value="draft">Rascunho</option>
+                                    </select><br>
+                                    Agendar: <input type="datetime-local" id="ep-schedule" class="form-input"
+                                        style="font-size:0.7rem;">
+                                </div>
+                                <button type="submit" class="btn-action btn-primary"
+                                    style="width: 100%; margin-top: 15px;">Publicar / Salvar</button>
+                            </div>
+                            <div class="sidebar-box">
+                                <h4>Convidado Vinculado</h4>
+                                <select id="ep-guest" class="form-input" style="font-size:0.8rem;"></select>
+                            </div>
+                            <!-- ... category and media boxes preserved ... -->
+                        </aside>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ALL EPISODES TAB (Updated) -->
+            <section id="all-episodes" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Todos os Episódios</h1>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Status</th>
+                            <th>Categoria</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="episodes-table-body"></tbody>
+                </table>
+            </section>
+
+            <!-- COMMENTS MODERATION TAB -->
+            <section id="comments-admin" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Moderador de Comentários</h1>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Autor</th>
+                            <th style="width: 40%">Comentário</th>
+                            <th>No Episódio</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-comments-body"></tbody>
+                </table>
+            </section>
+
+            <!-- TEMPLATES TAB (v3.0) -->
+            <section id="templates" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Temas e Aparência</h1>
+                </div>
+                <div class="templates-grid" id="themes-gallery"></div>
+            </section>
+
+            <!-- SETTINGS / SEO / RSS -->
+            <section id="settings" class="tab-content" style="display: none;">
+                <div class="top-bar">
+                    <h1>Configurações 3.0</h1>
+                </div>
+                <div class="editor-panel">
+                    <h3>🔍 SEO & Google Preview</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div>
+                            <div class="form-group"><label>Meta Título</label><input type="text" id="seo-title"
+                                    class="form-input"></div>
+                            <div class="form-group"><label>Meta Descrição</label><textarea id="seo-desc"
+                                    class="form-input" rows="3"></textarea></div>
+                            <button class="btn-action btn-primary" onclick="saveSettings()">Salvar Metadata</button>
+                        </div>
+                        <div class="seo-preview" style="margin-top:20px;">
+                            <div class="seo-title" id="preview-title">Título</div>
+                            <div class="seo-url">https://seupodcast.com/</div>
+                            <div class="seo-description" id="preview-desc">Descrição...</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- RSS box below ... -->
+                <div class="export-box">
+                    <h3>💾 Backup & Sincronização Pro</h3>
+                    <p style="font-size:0.8rem; margin: 10px 0 20px;">Baixe seus dados em um arquivo JSON para restaurar
+                        em qualquer lugar.</p>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action" onclick="exportBackup()">Exportar Dados (.json)</button>
+                        <button class="btn-action" onclick="document.getElementById('import-file').click()">Importar
+                            Backup</button>
+                        <input type="file" id="import-file" style="display:none" onchange="importBackup(event)">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+        <div class="form-group">
+            <label>E-mail do Proprietário (Apple Requer)</label>
+            <input type="email" id="set-author-email" class="form-input" value="podcaster@exemplo.com">
+        </div>
+        <div class="form-group">
+            <label>URL da Imagem de Capa (3000x3000px)</label>
+            <input type="url" id="set-podcast-image" class="form-input" placeholder="https://exemplo.com/capa.jpg">
+        </div>
+    </div>
+
+    <div style="background: #f6f7f7; padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary);">
+        <p style="font-size: 0.9rem; margin-bottom: 15px;">Ao clicar no botão abaixo, geraremos um
+            arquivo <strong>XML (iTunes RSS)</strong> compatível com as principais plataformas.</p>
+        <button class="btn-action btn-primary" style="padding: 10px 20px;" onclick="generateRSS()">Exportar Podcast para
+            RSS Feed</button>
+
+        <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <span style="opacity: 0.6; font-size: 0.75rem;">🟢 Spotify Connect</span>
+            <span style="opacity: 0.6; font-size: 0.75rem;">🍏 Apple Podcasts</span>
+            <span style="opacity: 0.6; font-size: 0.75rem;">🔍 Google Index</span>
+        </div>
+    </div>
+    </div>
+    </section>
+
+    </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../src/super-cms.js"></script>
+</body>
+
+</html>
