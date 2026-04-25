@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --site-bg: #1d2327;
+  --site-text: #f0f2f5;
+  --site-accent: #2271b1;
+  --site-card: #2c3338;
+  --border: #4a545a;
+  --success: #00a32a;
+}
+
+body {
+  background-color: var(--site-bg);
+  color: var(--site-text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding-bottom: 80px; /* Space for persistent player */
+}
