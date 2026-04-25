@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Music, Image as ImageIcon } from "lucide-react";
 
 export default function EpisodeEditor() {
   const router = useRouter();
@@ -85,96 +86,135 @@ export default function EpisodeEditor() {
     }
 
     setLoading(false);
-    router.push("/admin");
+    router.push("/admin/episodes");
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-black uppercase text-[var(--site-text)]">
-          {id ? "Editar Episódio" : "Novo Episódio"}
+    <div className="max-w-6xl mx-auto pb-12">
+      <div className="flex items-center gap-4 mb-6">
+        <h1 className="text-2xl font-normal text-[#1d2327]">
+          {id ? "Editar Episódio" : "Adicionar Novo Episódio"}
         </h1>
-        <Link href="/admin" className="text-[var(--site-accent)] font-bold hover:underline">
-          Voltar
-        </Link>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[var(--site-card)] p-8 rounded-xl shadow-2xl border border-[var(--border)] space-y-6">
-        <div>
-          <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Título do Episódio</label>
+      <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Main Column */}
+        <div className="flex-1 space-y-6 w-full">
+          {/* Title Box */}
           <input 
             type="text" 
             required 
-            className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-3 rounded"
+            placeholder="Adicionar título"
+            className="w-full bg-white border border-[#c3c4c7] text-[#1d2327] px-4 py-3 text-xl focus:border-[#2271b1] focus:ring-1 focus:ring-[#2271b1] outline-none rounded-sm shadow-inner"
             value={formData.title} 
             onChange={(e) => setFormData({...formData, title: e.target.value})} 
           />
-        </div>
 
-        <div>
-          <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Descrição (Rich Text / HTML permitido)</label>
-          <textarea 
-            rows={5} 
-            className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-3 rounded font-mono text-sm"
-            value={formData.description} 
-            onChange={(e) => setFormData({...formData, description: e.target.value})} 
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Upload de Áudio (MP3)</label>
-            <input type="file" accept="audio/mpeg" onChange={(e) => handleUpload(e, "audio_url")} className="mb-2 block w-full text-sm text-[var(--site-text)] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-[var(--site-accent)] file:text-white hover:file:opacity-90" />
-            {formData.audio_url && <input type="text" readOnly value={formData.audio_url} className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-2 rounded text-xs opacity-70" />}
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Capa do Episódio</label>
-            <input type="file" accept="image/*" onChange={(e) => handleUpload(e, "thumbnail_url")} className="mb-2 block w-full text-sm text-[var(--site-text)] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:bg-[var(--site-accent)] file:text-white hover:file:opacity-90" />
-            {formData.thumbnail_url && <input type="text" readOnly value={formData.thumbnail_url} className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-2 rounded text-xs opacity-70" />}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Tags (separadas por vírgula)</label>
-            <input 
-              type="text" 
-              className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-3 rounded"
-              placeholder="Ex: Tecnologia, Programação, React"
-              value={formData.tags} 
-              onChange={(e) => setFormData({...formData, tags: e.target.value})} 
+          {/* Classic Editor Area */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm">
+            <div className="bg-[#f6f7f7] border-b border-[#c3c4c7] px-3 py-2 flex gap-2">
+              <button type="button" className="text-xs bg-white border border-[#c3c4c7] px-2 py-1 rounded text-[#50575e]">Visual</button>
+              <button type="button" className="text-xs border border-transparent px-2 py-1 text-[#50575e]">Texto</button>
+            </div>
+            <textarea 
+              rows={12} 
+              className="w-full p-4 text-[#1d2327] outline-none resize-y min-h-[300px]"
+              value={formData.description} 
+              onChange={(e) => setFormData({...formData, description: e.target.value})} 
             />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-[var(--site-text)] mb-2 uppercase">Duração (opcional)</label>
-            <input 
-              type="text" 
-              className="w-full bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-3 rounded"
-              placeholder="Ex: 45:30"
-              value={formData.duration} 
-              onChange={(e) => setFormData({...formData, duration: e.target.value})} 
-            />
+
+          {/* Audio Metabox */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm shadow-sm">
+            <h2 className="px-4 py-3 border-b border-[#c3c4c7] font-semibold text-[#1d2327] m-0 flex items-center gap-2">
+              <Music className="w-4 h-4 text-[#50575e]" />
+              Arquivo de Áudio (MP3)
+            </h2>
+            <div className="p-4">
+              <input type="file" accept="audio/mpeg" onChange={(e) => handleUpload(e, "audio_url")} className="mb-3 block w-full text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border file:border-[#2271b1] file:text-sm file:bg-[#f6f7f7] file:text-[#2271b1] hover:file:bg-white cursor-pointer" />
+              {formData.audio_url && (
+                <div className="text-xs text-gray-500 bg-[#f6f7f7] p-2 border border-dashed border-[#c3c4c7] break-all">
+                  URL Atual: {formData.audio_url}
+                </div>
+              )}
+            </div>
           </div>
+          
+          {/* Duration Metabox */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm shadow-sm">
+            <h2 className="px-4 py-3 border-b border-[#c3c4c7] font-semibold text-[#1d2327] m-0">Duração</h2>
+            <div className="p-4">
+               <input 
+                type="text" 
+                className="w-full max-w-[200px] bg-white border border-[#c3c4c7] text-[#1d2327] px-3 py-1 outline-none rounded-sm"
+                placeholder="Ex: 45:30"
+                value={formData.duration} 
+                onChange={(e) => setFormData({...formData, duration: e.target.value})} 
+              />
+            </div>
+          </div>
+
         </div>
 
-        <div className="pt-4 border-t border-[var(--border)] flex justify-between items-center">
-          <select 
-            className="bg-[var(--site-bg)] border border-[var(--border)] text-[var(--site-text)] p-3 rounded uppercase font-bold text-sm"
-            value={formData.status}
-            onChange={(e) => setFormData({...formData, status: e.target.value})}
-          >
-            <option value="draft">Rascunho</option>
-            <option value="published">Publicado</option>
-          </select>
+        {/* Right Sidebar (Publishing) */}
+        <div className="w-full lg:w-[280px] shrink-0 space-y-6">
+          
+          {/* Publish Metabox */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm shadow-sm">
+            <h2 className="px-3 py-2 border-b border-[#c3c4c7] font-semibold text-[#1d2327] m-0">Publicar</h2>
+            <div className="p-3 text-sm text-[#50575e] space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-16">Status:</span>
+                <select 
+                  className="bg-white border border-[#c3c4c7] text-[#1d2327] px-2 py-1 rounded outline-none"
+                  value={formData.status}
+                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                >
+                  <option value="draft">Rascunho</option>
+                  <option value="published">Publicado</option>
+                </select>
+              </div>
+            </div>
+            <div className="px-3 py-3 bg-[#f6f7f7] border-t border-[#c3c4c7] flex justify-end">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="bg-[#2271b1] text-white px-4 py-1.5 rounded font-medium border border-[#135e96] shadow-sm hover:bg-[#135e96] transition disabled:opacity-50"
+              >
+                {loading ? "Salvando..." : id ? "Atualizar" : "Publicar"}
+              </button>
+            </div>
+          </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="bg-[var(--success)] text-white px-8 py-3 rounded font-black uppercase tracking-wider hover:opacity-90 transition disabled:opacity-50"
-          >
-            {loading ? "Salvando..." : "Salvar Episódio"}
-          </button>
+          {/* Categories/Tags Metabox */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm shadow-sm">
+            <h2 className="px-3 py-2 border-b border-[#c3c4c7] font-semibold text-[#1d2327] m-0">Tags</h2>
+            <div className="p-3">
+              <textarea 
+                className="w-full bg-white border border-[#c3c4c7] text-[#1d2327] p-2 text-sm outline-none rounded-sm"
+                placeholder="Tecnologia, Código, Podcast"
+                rows={3}
+                value={formData.tags} 
+                onChange={(e) => setFormData({...formData, tags: e.target.value})} 
+              />
+              <p className="text-[11px] text-gray-500 mt-1 italic">Separe as tags com vírgulas.</p>
+            </div>
+          </div>
+
+          {/* Thumbnail Metabox */}
+          <div className="bg-white border border-[#c3c4c7] rounded-sm shadow-sm">
+            <h2 className="px-3 py-2 border-b border-[#c3c4c7] font-semibold text-[#1d2327] m-0 flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-[#50575e]" />
+              Capa do Episódio
+            </h2>
+            <div className="p-3">
+              {formData.thumbnail_url && (
+                <img src={formData.thumbnail_url} alt="Capa" className="w-full mb-3 rounded border border-[#c3c4c7]" />
+              )}
+              <input type="file" accept="image/*" onChange={(e) => handleUpload(e, "thumbnail_url")} className="w-full text-xs" />
+            </div>
+          </div>
+
         </div>
       </form>
     </div>

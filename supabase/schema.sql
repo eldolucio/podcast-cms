@@ -29,3 +29,24 @@ CREATE POLICY "Episódios são públicos para leitura"
 -- 1. Crie um bucket chamado 'podcasts'
 -- 2. Torne o bucket 'public'
 -- 3. Crie políticas permitindo INSERT e SELECT.
+
+-- Tabela de Comentários
+CREATE TABLE public.comments (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    episode_id UUID REFERENCES public.episodes(id) ON DELETE CASCADE,
+    author_name TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Comentários são públicos para leitura"
+    ON public.comments FOR SELECT
+    USING (true);
+
+-- Política de inserção pública (para testes, em prod exigir auth ou captcha)
+CREATE POLICY "Qualquer um pode comentar"
+    ON public.comments FOR INSERT
+    WITH CHECK (true);
+

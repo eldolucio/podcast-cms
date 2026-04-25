@@ -1,19 +1,36 @@
 @import "tailwindcss";
 
 :root {
+  /* Public Interface Colors */
   --site-bg: #1d2327;
   --site-text: #f0f2f5;
   --site-accent: #2271b1;
   --site-card: #2c3338;
   --border: #4a545a;
   --success: #00a32a;
+
+  /* WP Admin Colors */
+  --wp-bg: #f1f1f1;
+  --wp-sidebar: #2c3338;
+  --wp-sidebar-hover: #1d2327;
+  --wp-primary: #2271b1;
+  --wp-primary-hover: #135e96;
+  --wp-text: #3c434a;
+  --wp-border: #c3c4c7;
 }
 
 body {
   background-color: var(--site-bg);
   color: var(--site-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
   margin: 0;
   padding-bottom: 80px; /* Space for persistent player */
+}
+
+/* WP Admin specific base styles */
+.wp-admin-body {
+  background-color: var(--wp-bg);
+  color: var(--wp-text);
+  padding-bottom: 0;
 }
