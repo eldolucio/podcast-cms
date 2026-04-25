@@ -9,14 +9,14 @@
   --border: #4a545a;
   --success: #00a32a;
 
-  /* WP Admin Colors */
-  --wp-bg: #f1f1f1;
-  --wp-sidebar: #2c3338;
-  --wp-sidebar-hover: #1d2327;
-  --wp-primary: #2271b1;
-  --wp-primary-hover: #135e96;
-  --wp-text: #3c434a;
-  --wp-border: #c3c4c7;
+  /* WP Admin Total Dark Mode Colors */
+  --wp-bg: #101113;
+  --wp-sidebar: #1c1d21;
+  --wp-sidebar-hover: #101113;
+  --wp-primary: #3858e9;
+  --wp-primary-hover: #2643bf;
+  --wp-text: #e0e0e0;
+  --wp-border: #2c2d33;
 }
 
 body {
