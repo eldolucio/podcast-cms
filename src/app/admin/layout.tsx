@@ -30,6 +30,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/editor" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12">
             Adicionar Novo
           </Link>
+
+          <div className="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            Extensões
+          </div>
+
+          <Link href="/admin/extensions/installed" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-300">
+            Instalados
+          </Link>
+          <Link href="/admin/extensions/store" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-300">
+            Mercado
+          </Link>
+          <Link href="/admin/extensions/themes" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-300">
+            Temas
+          </Link>
+
+          <div className="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+            <Settings className="w-4 h-4" /> Configurações
+          </div>
+
+          <Link href="/admin/settings/general" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-300">
+            Geral
+          </Link>
+          <Link href="#" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-500 cursor-not-allowed">
+            Escrita
+          </Link>
+          <Link href="#" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-500 cursor-not-allowed">
+            Leitura
+          </Link>
+          <Link href="#" className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--wp-primary)] text-sm transition group pl-12 text-gray-500 cursor-not-allowed">
+            Links Permanentes
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-gray-700">

@@ -1,211 +1,157 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Music, Image as ImageIcon, Settings } from "lucide-react";
-import { getPost, savePost } from "@/app/actions/wp-actions";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { savePost } from "@/app/actions/wp-actions";
 
-export default function EpisodeEditor() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-
+export default function EditorPage() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     status: "publish",
-    meta: {
-      audio_url: "",
-      thumbnail_url: "",
-      tags: "",
-      duration: "",
-      season: "",
-      episode: "",
-      content_type: "full"
-    }
+    audioUrl: "",
+    season: "",
+    episode: "",
+    duration: "",
+    contentType: "Completo",
+    youtubeUrl: "",
   });
-
-  useEffect(() => {
-    if (id) {
-      loadEpisode(Number(id));
-    }
-  }, [id]);
-
-  async function loadEpisode(postId: number) {
-    const post = await getPost(postId);
-    if (post) {
-      setFormData({
-        title: post.post_title,
-        content: post.post_content || "",
-        status: post.post_status || "publish",
-        meta: {
-          audio_url: post.meta?.audio_url || "",
-          thumbnail_url: post.meta?.thumbnail_url || "",
-          tags: post.meta?.tags || "",
-          duration: post.meta?.duration || "",
-          season: post.meta?.season || "",
-          episode: post.meta?.episode || "",
-          content_type: post.meta?.content_type || "full"
-        }
-      });
-    }
-  }
-
-  const handleMetaChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, meta: { ...prev.meta, [field]: value } }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    const payload = {
-      id: id ? Number(id) : undefined,
+    
+    // Formatar os metadados para que o PowerPress leia de forma invisível.
+    // O PowerPress usa a chave 'enclosure' no formato: URL\nLength\nType\nSerializedArray
+    // Se passarmos apenas a URL, ele costuma tentar deduzir ou usa como base.
+    // E também usa 'duration' e 'episode' separadamente em algumas versões.
+    
+    const enclosureData = `${formData.audioUrl}\n\naudio/mpeg\n`; 
+    
+    // Extrair ID do YouTube
+    const extractYouTubeId = (url: string) => {
+      if (!url) return "";
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : "";
+    };
+    
+    await savePost({
       title: formData.title,
       content: formData.content,
       status: formData.status,
-      type: 'podcast',
-      meta: formData.meta
-    };
-
-    await savePost(payload);
+      type: "podcast",
+      meta: {
+        enclosure: enclosureData,
+        duration: formData.duration,
+        season: formData.season,
+        episode: formData.episode,
+        _powerpress_content_type: formData.contentType,
+        youtube_video_id: extractYouTubeId(formData.youtubeUrl)
+      }
+    });
+    
     setLoading(false);
-    router.push("/admin/episodes");
+    alert("Episódio salvo e integrado ao PowerPress!");
   };
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
-      <div className="flex items-center gap-4 mb-6">
-        <h1 className="text-2xl font-normal text-[var(--wp-text)]">
-          {id ? "Editar Episódio" : "Adicionar Novo Episódio"}
-        </h1>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Main Column */}
-        <div className="flex-1 space-y-6 w-full">
-          {/* Title Box */}
-          <input 
-            type="text" 
-            required 
-            placeholder="Adicionar título"
-            className="w-full bg-[var(--wp-sidebar)] border border-[var(--wp-border)] text-[var(--wp-text)] px-4 py-3 text-xl focus:border-[var(--wp-primary)] outline-none rounded-sm"
-            value={formData.title} 
-            onChange={(e) => setFormData({...formData, title: e.target.value})} 
+    <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
+      <div className="flex-1 space-y-6">
+        <h1 className="text-2xl font-normal text-white mb-2">Adicionar Novo Episódio</h1>
+        
+        <input 
+          type="text" 
+          placeholder="Adicionar título" 
+          className="w-full bg-[#101113] border border-[var(--wp-border)] rounded-sm p-4 text-white text-lg focus:outline-none focus:border-[var(--wp-primary)]"
+          value={formData.title}
+          onChange={e => setFormData({ ...formData, title: e.target.value })}
+        />
+        
+        <div className="bg-[#101113] border border-[var(--wp-border)] rounded-sm overflow-hidden flex flex-col h-80">
+          <div className="border-b border-[var(--wp-border)] p-2 bg-[#1c1d21]">
+            <span className="text-xs text-gray-400 bg-[#101113] px-3 py-1 rounded border border-[var(--wp-border)]">Texto</span>
+          </div>
+          <textarea 
+            className="w-full flex-1 bg-transparent p-4 text-white resize-none focus:outline-none"
+            value={formData.content}
+            onChange={e => setFormData({ ...formData, content: e.target.value })}
           />
-
-          {/* Classic Editor Area */}
-          <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm">
-            <div className="bg-[#101113] border-b border-[var(--wp-border)] px-3 py-2 flex gap-2">
-              <button type="button" className="text-xs bg-[var(--wp-sidebar)] border border-[var(--wp-border)] px-2 py-1 rounded text-white">Texto</button>
-            </div>
-            <textarea 
-              rows={12} 
-              className="w-full p-4 bg-transparent text-[var(--wp-text)] outline-none resize-y min-h-[300px]"
-              value={formData.content} 
-              onChange={(e) => setFormData({...formData, content: e.target.value})} 
-            />
-          </div>
-
-          {/* Podcast Metadata (ACF Style) */}
-          <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm">
-            <h2 className="px-4 py-3 border-b border-[var(--wp-border)] font-semibold text-white m-0 flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Metadados do Podcast
-            </h2>
-            <div className="p-4 space-y-4">
-               <div>
-                 <label className="block text-sm text-gray-400 mb-1">URL do Áudio (MP3)</label>
-                 <input type="text" className="w-full bg-[#101113] border border-[var(--wp-border)] text-white px-3 py-2 outline-none rounded-sm" value={formData.meta.audio_url} onChange={(e) => handleMetaChange('audio_url', e.target.value)} />
-               </div>
-               <div className="flex gap-4">
-                 <div className="flex-1">
-                   <label className="block text-sm text-gray-400 mb-1">Temporada</label>
-                   <input type="number" className="w-full bg-[#101113] border border-[var(--wp-border)] text-white px-3 py-2 outline-none rounded-sm" value={formData.meta.season} onChange={(e) => handleMetaChange('season', e.target.value)} />
-                 </div>
-                 <div className="flex-1">
-                   <label className="block text-sm text-gray-400 mb-1">Episódio</label>
-                   <input type="number" className="w-full bg-[#101113] border border-[var(--wp-border)] text-white px-3 py-2 outline-none rounded-sm" value={formData.meta.episode} onChange={(e) => handleMetaChange('episode', e.target.value)} />
-                 </div>
-               </div>
-               <div className="flex gap-4">
-                 <div className="flex-1">
-                   <label className="block text-sm text-gray-400 mb-1">Duração (Ex: 45:30)</label>
-                   <input type="text" className="w-full bg-[#101113] border border-[var(--wp-border)] text-white px-3 py-2 outline-none rounded-sm" value={formData.meta.duration} onChange={(e) => handleMetaChange('duration', e.target.value)} />
-                 </div>
-                 <div className="flex-1">
-                   <label className="block text-sm text-gray-400 mb-1">Tipo de Conteúdo</label>
-                   <select className="w-full bg-[#101113] border border-[var(--wp-border)] text-white px-3 py-2 outline-none rounded-sm" value={formData.meta.content_type} onChange={(e) => handleMetaChange('content_type', e.target.value)}>
-                     <option value="full">Completo</option>
-                     <option value="trailer">Trailer</option>
-                     <option value="bonus">Bônus</option>
-                   </select>
-                 </div>
-               </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Sidebar (Publishing) */}
-        <div className="w-full lg:w-[280px] shrink-0 space-y-6">
-          
-          {/* Publish Metabox */}
-          <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm">
-            <h2 className="px-3 py-2 border-b border-[var(--wp-border)] font-semibold text-white m-0">Publicar</h2>
-            <div className="p-3 text-sm text-gray-300 space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="w-16">Status:</span>
-                <select 
-                  className="bg-[#101113] border border-[var(--wp-border)] text-white px-2 py-1 rounded outline-none"
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                >
-                  <option value="draft">Rascunho</option>
-                  <option value="publish">Publicado</option>
+        <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden">
+          <h2 className="px-4 py-3 border-b border-[var(--wp-border)] font-semibold text-white m-0 text-sm flex items-center gap-2">
+            ⚙️ Metadados do Podcast (Sincronizado c/ PowerPress)
+          </h2>
+          <div className="p-6 space-y-6">
+            <div>
+              <label className="block text-xs text-gray-400 mb-2">URL do Áudio (MP3)</label>
+              <input type="text" className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm"
+                value={formData.audioUrl} onChange={e => setFormData({ ...formData, audioUrl: e.target.value })} />
+            </div>
+
+            <div className="bg-[#1c1d21] p-4 border border-[var(--wp-border)] rounded-sm">
+              <label className="block text-xs font-semibold text-white mb-2 uppercase tracking-wide">Videocast (YouTube)</label>
+              <p className="text-xs text-gray-500 mb-3">Cole o link do YouTube para exibir o Player Híbrido.</p>
+              <input type="text" placeholder="https://youtube.com/watch?v=..." className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm focus:border-[var(--wp-primary)] focus:outline-none"
+                value={formData.youtubeUrl} onChange={e => setFormData({ ...formData, youtubeUrl: e.target.value })} />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-2">Temporada</label>
+                <input type="number" className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm"
+                  value={formData.season} onChange={e => setFormData({ ...formData, season: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2">Episódio</label>
+                <input type="number" className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm"
+                  value={formData.episode} onChange={e => setFormData({ ...formData, episode: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2">Duração (Ex: 45:30)</label>
+                <input type="text" className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm"
+                  value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2">Tipo de Conteúdo</label>
+                <select className="w-full bg-[#101113] border border-[var(--wp-border)] p-2 text-white rounded-sm"
+                  value={formData.contentType} onChange={e => setFormData({ ...formData, contentType: e.target.value })}>
+                  <option value="Completo">Completo</option>
+                  <option value="Trailer">Trailer</option>
+                  <option value="Bonus">Bônus</option>
                 </select>
               </div>
             </div>
-            <div className="px-3 py-3 bg-[#101113] border-t border-[var(--wp-border)] flex justify-end">
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full md:w-80 space-y-6 shrink-0 mt-14">
+        <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm">
+          <h2 className="px-4 py-3 border-b border-[var(--wp-border)] font-semibold text-white m-0 text-sm">Publicar</h2>
+          <div className="p-4 space-y-4">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-400">Status:</span>
+              <select className="bg-transparent text-white border-none cursor-pointer" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                <option value="publish">Publicado</option>
+                <option value="draft">Rascunho</option>
+              </select>
+            </div>
+            <div className="pt-4 border-t border-[var(--wp-border)] flex justify-end">
               <button 
-                type="submit" 
+                onClick={handleSubmit}
                 disabled={loading}
-                className="bg-[var(--wp-primary)] text-white px-4 py-1.5 rounded font-medium hover:bg-[var(--wp-primary-hover)] transition disabled:opacity-50"
+                className="bg-[var(--wp-primary)] hover:bg-[var(--wp-primary-hover)] text-white px-4 py-2 rounded-sm text-sm font-medium transition flex items-center gap-2"
               >
-                {loading ? "Salvando..." : id ? "Atualizar" : "Publicar"}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Publicar
               </button>
             </div>
           </div>
-
-          {/* Categories/Tags Metabox */}
-          <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm">
-            <h2 className="px-3 py-2 border-b border-[var(--wp-border)] font-semibold text-white m-0">Tags</h2>
-            <div className="p-3">
-              <textarea 
-                className="w-full bg-[#101113] border border-[var(--wp-border)] text-white p-2 text-sm outline-none rounded-sm"
-                placeholder="Tecnologia, Código..."
-                rows={3}
-                value={formData.meta.tags} 
-                onChange={(e) => handleMetaChange('tags', e.target.value)} 
-              />
-            </div>
-          </div>
-
-          {/* Thumbnail Metabox */}
-          <div className="bg-[var(--wp-sidebar)] border border-[var(--wp-border)] rounded-sm shadow-sm">
-            <h2 className="px-3 py-2 border-b border-[var(--wp-border)] font-semibold text-white m-0 flex items-center gap-2">
-              <ImageIcon className="w-4 h-4" />
-              Capa do Episódio
-            </h2>
-            <div className="p-3">
-              <input type="text" placeholder="URL da Imagem" onChange={(e) => handleMetaChange('thumbnail_url', e.target.value)} value={formData.meta.thumbnail_url} className="w-full bg-[#101113] border border-[var(--wp-border)] text-white p-2 text-sm rounded-sm" />
-            </div>
-          </div>
-
         </div>
-      </form>
+      </div>
     </div>
   );
 }
-

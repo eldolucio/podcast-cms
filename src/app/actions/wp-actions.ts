@@ -88,3 +88,59 @@ export async function getDashboardStats() {
     recentComments: [] // Stub for now, can be added later as wp_comments
   };
 }
+
+export async function getPublicEpisodes() {
+  const [postRows]: any = await pool.query('SELECT ID, post_title, post_content, post_date FROM wp_posts WHERE post_type = "podcast" AND post_status = "publish" ORDER BY post_date DESC');
+  
+  if (postRows.length === 0) return [];
+
+  const postIds = postRows.map((p: any) => p.ID);
+  const [metaRows]: any = await pool.query('SELECT post_id, meta_key, meta_value FROM wp_postmeta WHERE post_id IN (?)', [postIds]);
+
+  const episodes = postRows.map((post: any) => {
+    const meta = metaRows.filter((m: any) => m.post_id === post.ID);
+    
+    // Parse PowerPress enclosure: URL\nLength\nType\nSerialize
+    const enclosureStr = meta.find((m: any) => m.meta_key === 'enclosure')?.meta_value || '';
+    const audioUrl = enclosureStr.split('\n')[0] || '';
+
+    return {
+      id: post.ID,
+      title: post.post_title,
+      content: post.post_content,
+      date: post.post_date,
+      audioUrl,
+      duration: meta.find((m: any) => m.meta_key === 'duration')?.meta_value || '',
+      season: meta.find((m: any) => m.meta_key === 'season')?.meta_value || '',
+      episode: meta.find((m: any) => m.meta_key === 'episode')?.meta_value || '',
+      youtubeId: meta.find((m: any) => m.meta_key === 'youtube_video_id')?.meta_value || '',
+    };
+  });
+
+  return episodes;
+}
+
+export async function getGlobalOptions(keys: string[]) {
+  if (keys.length === 0) return {};
+  const [rows]: any = await pool.query('SELECT option_name, option_value FROM wp_options WHERE option_name IN (?)', [keys]);
+  
+  const options: Record<string, string> = {};
+  rows.forEach((row: any) => {
+    options[row.option_name] = row.option_value;
+  });
+  return options;
+}
+
+export async function saveGlobalOptions(options: Record<string, string>) {
+  for (const [key, value] of Object.entries(options)) {
+    // Check if option exists
+    const [existing]: any = await pool.query('SELECT option_id FROM wp_options WHERE option_name = ?', [key]);
+    
+    if (existing.length > 0) {
+      await pool.query('UPDATE wp_options SET option_value = ? WHERE option_name = ?', [value, key]);
+    } else {
+      await pool.query('INSERT INTO wp_options (option_name, option_value) VALUES (?, ?)', [key, value]);
+    }
+  }
+  return true;
+}

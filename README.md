@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Podcast CMS (Alpha) 🎙️
 
-## Getting Started
+> **STATUS:** ⚠️ Alpha Version - Em desenvolvimento ativo.
 
-First, run the development server:
+Um Content Management System (CMS) industrial e de alta performance construído especialmente para criadores de Podcasts e Videocasts.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+O **Podcast CMS** utiliza uma arquitetura híbrida apelidada de **Shadow Engine**: A interface é construída em **Next.js** com um design brutalista "Dark Mode", proporcionando uma experiência de usuário focada e livre de distrações, enquanto a gestão pesada de dados (RSS, plugins, banco de dados) roda ocultamente através de um motor **WordPress via Docker**.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Principais Funcionalidades
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Shadow Engine (Motor Oculto):** O WordPress roda em background garantindo estabilidade e compatibilidade, enquanto você interage apenas com o painel Next.js.
+- **Videocast Nativo:** Integração transparente com YouTube. Um Player Híbrido que carrega o vídeo Widescreen junto do áudio.
+- **Loja de Extensões via Bridge:** Pesquise, ative e instale plugins diretamente do repositório oficial do WordPress através da API interna, usando SWR e interface de linha de comando simulada.
+- **SEO & Open Graph Dinâmicos:** As meta tags, títulos e `og:images` do seu site são geradas em tempo real com base no seu painel.
+- **Proxy RSS Transparente:** Rota interna (`/feed/podcast`) limpa e otimizada, perfeita para a aprovação instantânea no Spotify for Podcasters e Apple Podcasts Connect.
+- **Segurança Brutal:** Rotas e APIs blindadas por Middleware Next.js, validadas diretamente com os hashes nativos do banco de dados do WP.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tecnologias Utilizadas
 
-## Learn More
+- **Frontend:** Next.js (App Router), React, Tailwind CSS.
+- **Backend Bridge:** PHP 8.3 (WordPress Bridge customizada).
+- **Banco de Dados:** MariaDB (Containers Otimizados).
+- **Infraestrutura:** Docker & Docker Compose.
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Como rodar localmente (Modo Desenvolvimento)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone este repositório.
+2. Na raiz do projeto, suba a infraestrutura da Shadow Engine:
+   ```bash
+   docker-compose up -d
+   ```
+3. O Next.js iniciará automaticamente na porta `3000`. Acesse `http://localhost:3000`.
+4. Painel de Controle: `http://localhost:3000/admin`.
+5. Autenticação Padrão (Ambiente Local): 
+   - Usuário: `admin`
+   - Senha: `password` (ou `admin123` caso tenha sido alterada via DB)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚧 Status (Alpha)
 
-## Deploy on Vercel
+Este projeto está em fase **Alpha**. A API de ponte (Bridge) ainda está sendo expandida e a plataforma não deve ser utilizada em produção sem auditoria da estrutura de Containers. Expect bugs de layout e refatorações no motor de plugins.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desenvolvido por construtores do futuro.

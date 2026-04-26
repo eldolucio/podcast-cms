@@ -34,3 +34,34 @@ body {
   color: var(--wp-text);
   padding-bottom: 0;
 }
+
+/* WP PLUGIN OVERRIDES - SHADOW ENGINE */
+.wp-plugin-wrapper {
+  /* Força cores e tipografia no container isolado dos plugins originais */
+  --wp-plugin-bg: #1a1a1a;
+  --wp-plugin-text: #ffffff;
+  --wp-admin-theme-color: #000000;
+  
+  color: var(--wp-plugin-text) !important;
+  background-color: transparent !important;
+}
+
+.wp-plugin-wrapper * {
+  color: inherit;
+  font-family: inherit;
+}
+
+.wp-plugin-wrapper input,
+.wp-plugin-wrapper textarea,
+.wp-plugin-wrapper select {
+  background-color: var(--wp-plugin-bg) !important;
+  color: var(--wp-plugin-text) !important;
+  border-color: var(--wp-border) !important;
+}
+
+.wp-plugin-wrapper button,
+.wp-plugin-wrapper .button {
+  background-color: var(--wp-primary) !important;
+  color: #fff !important;
+  border: none !important;
+}
