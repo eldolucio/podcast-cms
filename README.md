@@ -6,21 +6,6 @@ Um Content Management System (CMS) industrial e de alta performance construído 
 
 O **Podcast CMS** utiliza uma arquitetura híbrida apelidada de **Shadow Engine**: A interface é construída em **Next.js** com um design brutalista "Dark Mode", proporcionando uma experiência de usuário focada e livre de distrações, enquanto a gestão pesada de dados (RSS, plugins, banco de dados) roda ocultamente através de um motor **WordPress via Docker**.
 
-### Visão Pública (Home Híbrida Áudio + YouTube)
-![Podcast CMS Home](public/screenshot-public.png)
-
-### Painel de Controle (Dashboard Industrial)
-![Podcast CMS Dashboard](public/screenshot-admin-dashboard.png)
-
-### Central de Edição Híbrida (Videocasts)
-![Podcast CMS Editor](public/screenshot-admin-editor.png)
-
-### Loja de Extensões Integrada (Shadow Engine)
-![Podcast CMS Store](public/screenshot-admin-store.png)
-
-### Configurações Globais
-![Podcast CMS Settings](public/screenshot-admin-settings.png)
-
 ## 🚀 Principais Funcionalidades
 
 - **Shadow Engine (Motor Oculto):** O WordPress roda em background garantindo estabilidade e compatibilidade, enquanto você interage apenas com o painel Next.js.
