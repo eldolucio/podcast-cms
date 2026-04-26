@@ -1,5 +1,7 @@
 # Podcast CMS (Alpha) 🎙️
 
+<img src="public/alpha-status.png" width="100" alt="Alpha Status" />
+
 > **STATUS:** ⚠️ Alpha Version - Em desenvolvimento ativo.
 
 Um Content Management System (CMS) industrial e de alta performance construído especialmente para criadores de Podcasts e Videocasts.
