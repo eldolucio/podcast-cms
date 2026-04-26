@@ -9,6 +9,9 @@ O **Podcast CMS** utiliza uma arquitetura híbrida apelidada de **Shadow Engine*
 ### Visão Pública (Home Híbrida Áudio + YouTube)
 ![Podcast CMS Home](public/screenshot-public.png)
 
+### Painel de Controle (Dashboard Industrial)
+![Podcast CMS Dashboard](public/screenshot-admin-dashboard.png)
+
 ### Central de Edição Híbrida (Videocasts)
 ![Podcast CMS Editor](public/screenshot-admin-editor.png)
 
